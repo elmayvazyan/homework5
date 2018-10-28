@@ -1,0 +1,188 @@
+<canvas id="TrickOrTreat"></canvas>
+
+<script>
+
+	//I went nuts with this code for some reason it does not run and as you said that if the code doesn't run we get 0 I figured that at least not to waste my tortures I upload it like this. Also, as it did not run I did not make a video but instead put explanations in comments. I am sorry about this but I tried. 
+const canvas = document.getElementById('TrickOrTreat');
+const context = canvas.getContext('2d');
+canvas.width =1500;
+canvas.height = 1000;
+
+const rand = function(num) { //this is a function that randomly returns numbers 
+	return Math.floor(Math.random() * num) + 1;
+};
+
+const background = new Image();
+background.src = 'http://cedarcitypictures.com/wp-content/uploads/2017/09/halloween-cedar-city.jpg';
+
+const baby = new Image();
+background.src = 'https://techflourish.com/images/halloween-books-clipart-6.png';
+
+const ghost = new Image();
+background.src = 'https://i.pinimg.com/originals/47/5d/3f/475d3fc6412b4f4475c2fbe83d266f85.png';
+
+const TrickOrTreatData = {
+	baby: {
+		x: rand(950), //random
+		y: rand(700), // randomly puts baby somewhere
+		width: 60,
+		height: 70,
+		xDelta: 0, //initially it doesn't move starts moving when you make it do so
+		yDelta: 0,
+		image: baby,
+		draw: function() {
+			context.drawImage(this.image, this.x, this.y, this.width, this.height)
+		},
+		update: function() { //makes baby move player decides what should happen to it
+		if (this.xDelta !== 0 && this.x + this.xDelta >= 0 && this.x + this.xDelta + this.width <= canvas.width) { // if there is a move and if the the move is more than 0 and if the width height fit the canvas and cannot go out of canvas
+			this.x = this.x + this.xDelta
+		} else if (this.yDelta !== 0 && this.y + this.yDelta >= 0 && this.y + this.yDelta + this.height <= canvas.height) {
+			this.y = this.y + this.yDelta
+		} //if the keyboard changes and is not 0 anymore if you can do up or down inside canvas then y is added by delta y. 
+		this.xDelta = 0;
+		this.yDelta = 0; // bring to 0 or otherwise it will keep moving
+	},
+
+	ghost: [], //store here array as there are many ghosts
+
+}
+}
+
+const createGhost = function(count, canvasWidth, canvasHeight) { //takes the number of ghosts and canvas size to stay in
+	let ghostArr = [];
+	for(let i = 0; i < count; i++) { // start with 0 and then grow it up to the number we ask for. if empty it will put in the object we have created
+			ghostArr[i] = { //
+			x: rand(canvasWidth - 75), // - 75 is its width
+			y: rand(canvasHeight - 95), // and height so that it does not go off the boundries
+			width: 75,
+			height: 95,
+			xDelta: 1, //the speed of the movement
+			yDelta: 1,
+			image: ghost,
+			draw: function() {
+				context.drawImage(this.image, this.x, this.y, this.width, this.height)
+			},
+			update: function() {
+				if(this.x <= 0 || this.x >= canvas.width - this.width) {
+					this.xDelta = xDelta * -1
+				}; 
+				if((this.y <= 0) || this.y >= (canvas.height - this.height)) {
+					this.yDelta = yDelta * -1
+				};
+				this.x = this.x + this.xDelta; //avoiding the inf loop
+				this.y = this.y + this.yDelta;
+			}
+//here it moves randomly we do not control it and ghost - we check if it is inside the canvas we mult by -1 to change the direction of the movement this is the same for y and x
+		}
+	}
+
+TrickOrTreatData.ghost = ghostArr //we assign the ghost in line 46 from trickortreatdata to a new ghostArr
+}
+
+const addGhost = function() { // it creates new ghosts like in create ghosts same parameters
+	let i = TrickOrTreatData.ghost.length;
+	TrickOrTreatData.ghost[i] = {
+		x: rand(canvas.width - 70),
+		y: rand(canvas.height - 95),
+		width: 70,
+		height: 90,
+		xDelta: 1,
+		yDelta: 1,
+		image: ghost,
+		draw: function() {
+			context.drawImage(this.image, this.x, this.y, this.width, this.height)
+		},
+		update: function() {
+			if(this.x <= 0 || this.x >= canvas.width - this.width){
+				this.xDelta = this.xDelta * -1
+			};
+
+			if(this.y <= 0 || this.y >= canvas.height - this.height) {
+				this.yDelta = this.yDelta * -1
+			};
+
+			this.x = this.x + this.xDelta;
+			this.y = this.y + this.yDelta;
+		}
+	}
+};
+
+const leftKey = 37;  //assigns the movement
+const upKey = 38;
+const rightKey = 39;
+const downKey = 40;
+document.addEventListener('keydown', function(event) { //moves the baby
+	switch (event.keyCode) {
+		case upKey:
+			TrickOrTreatData.baby.yDelta = -15; //everytime you push the up key baby goes up by this many pixels
+			break;
+		case downKey:
+			TrickOrTreatData.baby.yDelta = 15;
+			break;
+		case rightKey:
+			TrickOrTreatData.baby.xDelta = 15;
+			break;
+		case leftKey:
+			TrickOrTreatData.baby.xDelta = -15;
+			break;
+		default:
+			break;
+		} //same for the rest of the keys
+}, false);
+
+const draw = function() { 
+	context.drawImage(background, 0, 0, canvas.width, canvas.height);
+	TrickOrTreatData.baby.draw();
+
+	for(let ind = 0; ind < TrickOrTreatData.ghost.length; ind = ind + 1) {
+		const elemet = TrickOrTreatData.ghost[ind];
+		element.draw();
+	}
+}
+//it calls the draw functions all together and draws the background first then the baby and then the ghosts as it is executed w/ the top down approach background can hide the rest of the images if we put it last
+
+//the num of ghosts we draw that many ghosts
+const update = function() {
+TrickOrTreatData.baby.update();
+	for(let ind = 0; ind < TrickOrTreatData.ghost.length; ind = ind + 1) {
+		const elemet = TrickOrTreatData.ghost[ind];
+		element.update();
+	}
+}; //for loop so that it updates the babies and ghosts
+
+const meetUp = function() {
+	let babyCenterX = TrickOrTreatData.baby.x + TrickOrTreatData.baby.width / 2;//baby center x and y makes it easier and shorter code
+	let babyCenterY = TrickOrTreatData.baby.y + TrickOrTreatData.baby.height / 2;
+	for (let ind = 0; ind < TrickOrTreatData.ghost.length; ind = ind + 1) {
+		const element = TrickOrTreatData.ghost[ind];
+		let ghostCenterX = element.x + element.width / 2;
+		let ghostCenterY = element.y + element.height / 2; //makes sure they do not meet
+		if(Math.abs(ghostCenterX - babyCenterX) + 40 <= TrickOrTreatData.baby.width / 2 + element.width / 2 && Math.abs(ghostCenterY - babyCenterY) + 20 <= TrickOrTreatData.baby.height / 2 + element.height / 2) {
+			alert('Oops, your candies are stolen by the ghost');
+			TrickOrTreatData.baby.x = rand (900); 
+			TrickOrTreatData.baby.y = rand(700);
+			createGhost(9, canvas.width, canvas.height); //as they can meet both from left and right, 40 and 20 keep the distance 
+			clearInterval(setId); // if you loose before 9 sec the system doesn't loose the track of time
+			setId = setInterval(function() { //every 9 seconds adds a new ghosts
+				addGhost();
+
+			}, 5000);
+		} 
+	}
+}; 
+//so that when they come across each other then it says the text in the alert
+
+let setId = setInterval(function() {
+	addGhost();
+}, 5000);
+
+const loop = function() { //after every update the functions are updated here
+	update();
+	draw();
+	meetUp();
+	requestAnimationFrame(loop);
+};
+
+createGhost(9, canvas.width, canvas.height);
+loop(); //calling the loop to start animating
+</script>
